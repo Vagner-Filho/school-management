@@ -1,3 +1,5 @@
+package conexao;
+
 import java.sql.*;
 
 public class ConexaoMysql {
