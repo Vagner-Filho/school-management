@@ -18,7 +18,7 @@ public class GestaoEscolar extends JFrame {
       painel = getContentPane();
       painel.setLayout(new BoxLayout(painel, 1));
 
-      criaTabelaDados();
+      // criaTabelaDados();
 
       JPanel painelBotoesTabela = new JPanel();
       painelBotoesTabela.setLayout(new FlowLayout());
@@ -53,6 +53,6 @@ public class GestaoEscolar extends JFrame {
   }
   public static void main(String[] args) throws SQLException {
     new GestaoEscolar();
-    new GestaoAluno();
+    // new GestaoAluno();
   }
 }
