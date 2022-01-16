@@ -18,7 +18,7 @@ public class GestaoEscolar extends JFrame {
       painel = getContentPane();
       painel.setLayout(new BoxLayout(painel, 1));
 
-      // criaTabelaDados();
+      criaTabelaDados();
 
       JPanel painelBotoesTabela = new JPanel();
       painelBotoesTabela.setLayout(new FlowLayout());
