@@ -38,26 +38,28 @@ public class Escola {
   public void setEndereco(String endereco) {
     this.endereco = endereco;
   }
-  public boolean createSchool() {
-    PreparedStatement pstmt;
-    try {
-      String sqlQuery = "INSERT INTO escola ("
-      +"escola_id, escola_nome, escola_endereco)"
-      + "VALUES(default, ?, ?)";
-
-      pstmt = conexao.prepareStatement(sqlQuery);
-      pstmt.setString(1, this.nome);
-      pstmt.setString(2, this.endereco);
-
-      if (pstmt.executeUpdate() > 0) {
-        System.out.println("Escola inserida com sucesso!");
-        return true;
+  public String createSchool() {
+    if (validateData()) {
+      PreparedStatement pstmt;
+      try {
+        String sqlQuery = "INSERT INTO escola ("
+        +"escola_id, escola_nome, escola_endereco)"
+        + "VALUES(default, ?, ?)";
+  
+        pstmt = conexao.prepareStatement(sqlQuery);
+        pstmt.setString(1, this.nome);
+        pstmt.setString(2, this.endereco);
+  
+        if (pstmt.executeUpdate() > 0) {
+          return "Escola inserida com sucesso!";
+        }
+      } catch (SQLException e) {
+        System.out.println(e.getMessage());
       }
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
+      return "Escola não inserida.";
+    } else {
+      return "Reveja os dados e tente novamente";
     }
-    System.out.println("Escola não inserida.");
-    return false;
   }
   public boolean updateSchool() {
     PreparedStatement pstmt;
@@ -129,5 +131,17 @@ public class Escola {
       dadosEscolas.add(escola);
     }
     return dadosEscolas;
+  }
+  private boolean validateData() {
+    if (this.id != (int)this.id) {
+      return false;
+    }
+    if (this.nome.length() < 1) {
+      return false;
+    }
+    if (this.endereco.length() < 1) {
+      return false;
+    }
+    return true;
   }
 }

@@ -6,8 +6,8 @@ public class ConexaoMysql {
   private static Connection conexao;
 
   public static Connection conectar() {
-    String nomeDriver = "com.mysql.jdbc.Driver";
-    String usuario = "root", senha = "";
+    String nomeDriver = "com.mysql.cj.jdbc.Driver";
+    String usuario = "root", senha = "luaazul69";
 
     try {
       Class.forName(nomeDriver);
