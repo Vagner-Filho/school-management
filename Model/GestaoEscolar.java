@@ -1,19 +1,24 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.sql.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.event.MouseInputListener;
 import javax.swing.table.DefaultTableModel;
+import listeners.*;
 
 
-public class GestaoEscolar extends JFrame {
+public class GestaoEscolar extends JFrame implements MouseInputListener {
   Container painel = null;
   JButton botaoIncluir = new JButton("Incluir");
   JButton botaoAlterar = new JButton("Alterar");
   JButton botaoExcluir = new JButton("Excluir");
   DefaultTableModel modeloTabela = null;
   JTable tabelaDados = null;
+  int rowId;
+  Escola escolaSelecionada = new Escola();
 
   public GestaoEscolar() throws SQLException {
       super("Cadastro de Escola");
@@ -25,6 +30,7 @@ public class GestaoEscolar extends JFrame {
       JPanel painelBotoesTabela = new JPanel();
       painelBotoesTabela.setLayout(new FlowLayout());
 
+      // Comportamento do botão para abrir janela de adicionar nova escola
       botaoIncluir.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -33,9 +39,6 @@ public class GestaoEscolar extends JFrame {
           frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
           frame.setSize(800, 200);
           frame.setLayout(new BorderLayout(10, 10));
-          Container escolaContainer;
-          escolaContainer = getContentPane();
-          escolaContainer.setLayout(new BoxLayout(escolaContainer, 1));
 
           JPanel escolaPainel = new JPanel();
           escolaPainel.setLayout(new FlowLayout());
@@ -46,15 +49,35 @@ public class GestaoEscolar extends JFrame {
           JTextField enderecoEscola = new JTextField("Endereço", 20);
           JButton cadastraEscola = new JButton("Cadastrar");
 
+          // Comportamento do botão para cadastrar escola no banco
           cadastraEscola.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-              Escola novaEscola = new Escola(Integer.parseInt(idEscola.getText()), nomeEscola.getText(), enderecoEscola.getText());
-              String createMessage =  novaEscola.createSchool();
-              frame.remove(escolaPainel);
-              JLabel mensagem = new JLabel();
-              mensagem.setText(createMessage);
-              frame.add(mensagem);
+              Escola novaEscola = new Escola(0, nomeEscola.getText(), enderecoEscola.getText());
+              JLabel status = new JLabel();
+              if (novaEscola.createSchool()) {
+                status.setText("Escola cadastrada!");
+                try {
+                  Escola newEscola = Escola.readSchool(nomeEscola.getText());
+                  modeloTabela.addRow(new String[] {
+                    Integer.toString(newEscola.getId()),
+                    newEscola.getNome(),
+                    newEscola.getEndereco()
+                  });
+                  modeloTabela.fireTableDataChanged();
+                } catch (SQLException e1) {
+                  e1.printStackTrace();
+                }
+              } else {
+                status.setText("Não foi possível cadastrar a escola.");
+              }
+              JFrame msg = new JFrame();
+              msg.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+              msg.setTitle("Status da Operação");
+              msg.setSize(400, 200);
+              msg.setLayout(new BorderLayout(10, 10));
+              msg.add(status);
+              msg.setVisible(true);
             };
           });
 
@@ -64,15 +87,95 @@ public class GestaoEscolar extends JFrame {
           escolaPainel.add(enderecoEscola);
           escolaPainel.add(cadastraEscola);
           
-          // escolaContainer.add(escolaPainel);
           frame.add(escolaPainel);
           frame.setVisible(true);
         };
       });
+      // Comportamento do botão para alterar escola cadastrada
+      botaoAlterar.addActionListener(new UpdateSchoolListener(escolaSelecionada.getNome(), escolaSelecionada.getEndereco(), escolaSelecionada.getId()) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          JFrame frame = new JFrame();
+          frame.setTitle("Alteração Escola");
+          frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+          frame.setSize(800, 200);
+          frame.setLayout(new BorderLayout(10, 10));
 
+          JPanel escolaPainel = new JPanel();
+          escolaPainel.setLayout(new FlowLayout());
+
+          JLabel labelEscola = new JLabel("Id da escola: ");
+          JLabel idEscola = new JLabel(Integer.toString(escolaSelecionada.getId()));
+          JTextField nomeEscola = new JTextField(escolaSelecionada.getNome(), 20);
+          JTextField enderecoEscola = new JTextField(escolaSelecionada.getEndereco(), 20);
+          JButton alterarEscola = new JButton("Alterar com os novos dados");
+
+          alterarEscola.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              Escola escola = new Escola(escolaSelecionada.getId(), nomeEscola.getText(), enderecoEscola.getText());
+              if (escola.updateSchool()) {
+                modeloTabela.removeRow(rowId);
+                modeloTabela.addRow(new String[] {
+                  Integer.toString(escola.getId()),
+                  escola.getNome(),
+                  escola.getEndereco()
+                });
+                modeloTabela.fireTableDataChanged();
+              }
+            }
+          });
+
+          escolaPainel.add(labelEscola);
+          escolaPainel.add(idEscola);
+          escolaPainel.add(nomeEscola);
+          escolaPainel.add(enderecoEscola);
+          escolaPainel.add(alterarEscola);
+
+          frame.add(escolaPainel);
+          frame.setVisible(true);
+        }
+      });
+      // Comportamento do botão para excluir escola cadastrada
+      botaoExcluir.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          JFrame frame = new JFrame();
+          frame.setTitle("Excluir Escola");
+          frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+          frame.setSize(800, 200);
+          frame.setLayout(new BorderLayout(10, 10));
+
+          JPanel escolaPainel = new JPanel();
+          escolaPainel.setLayout(new FlowLayout());
+
+          JLabel confirmacao = new JLabel("Deseja excluir a escola " + escolaSelecionada.getNome() + "?");
+          JButton btn = new JButton("Excluir");
+
+          btn.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              Escola escola = new Escola(escolaSelecionada.getId(), escolaSelecionada.getNome(), escolaSelecionada.getEndereco());
+              if (escola.deleteSchool()) {
+                modeloTabela.removeRow(rowId);
+                modeloTabela.fireTableDataChanged();
+              }
+            }
+            
+          });
+          escolaPainel.add(confirmacao);
+          escolaPainel.add(btn);
+
+          frame.add(escolaPainel);
+          frame.setVisible(true);
+        }
+      });
+      
       painelBotoesTabela.add(botaoIncluir);
       painelBotoesTabela.add(botaoAlterar);
       painelBotoesTabela.add(botaoExcluir);
+      painel.add(new JLabel("Para alterar ou excluir, clique em uma escola na lista e em seguida no botão desejado"));
       painel.add(painelBotoesTabela);
 
       this.setSize(800, 350);
@@ -94,6 +197,7 @@ public class GestaoEscolar extends JFrame {
     }
     tabelaDados = new JTable();
     tabelaDados.setModel(modeloTabela);
+    tabelaDados.addMouseListener(this);
 
     JScrollPane painelScroll = new JScrollPane(tabelaDados);
     painel.add(painelScroll, BorderLayout.CENTER);
@@ -102,4 +206,28 @@ public class GestaoEscolar extends JFrame {
     new GestaoEscolar();
     // new GestaoAluno();
   }
+  @Override
+  public void mouseClicked(MouseEvent e) {}
+  @Override
+  // Método que atribui os valores da row clicada para que sejam acessados por outra janela para realizar a atualização da escola clidada
+  public void mousePressed(MouseEvent e) {
+    int row = tabelaDados.rowAtPoint(e.getPoint());
+    this.rowId = row;
+    Object idEscola = tabelaDados.getValueAt(row, 0);
+    Object nome = tabelaDados.getValueAt(row, 1);
+    Object endereco = tabelaDados.getValueAt(row, 2);
+    escolaSelecionada.setId(Integer.parseInt((String) idEscola));
+    escolaSelecionada.setNome((String) nome);
+    escolaSelecionada.setEndereco((String) endereco);
+  }
+  @Override
+  public void mouseReleased(MouseEvent e) {}
+  @Override
+  public void mouseEntered(MouseEvent e) {}
+  @Override
+  public void mouseExited(MouseEvent e) {}
+  @Override
+  public void mouseDragged(MouseEvent e) {}
+  @Override
+  public void mouseMoved(MouseEvent e) {}
 }

@@ -20,6 +20,7 @@ public class Escola {
     new ConexaoMysql();
     this.conexao = ConexaoMysql.conectar();
   }
+  public Escola() {}
   public int getId() {
     return this.id;
   }
@@ -38,28 +39,26 @@ public class Escola {
   public void setEndereco(String endereco) {
     this.endereco = endereco;
   }
-  public String createSchool() {
-    if (validateData()) {
-      PreparedStatement pstmt;
-      try {
-        String sqlQuery = "INSERT INTO escola ("
-        +"escola_id, escola_nome, escola_endereco)"
-        + "VALUES(default, ?, ?)";
-  
-        pstmt = conexao.prepareStatement(sqlQuery);
-        pstmt.setString(1, this.nome);
-        pstmt.setString(2, this.endereco);
-  
-        if (pstmt.executeUpdate() > 0) {
-          return "Escola inserida com sucesso!";
-        }
-      } catch (SQLException e) {
-        System.out.println(e.getMessage());
+  public boolean createSchool() {
+    PreparedStatement pstmt;
+    try {
+      String sqlQuery = "INSERT INTO escola ("
+      +"escola_id, escola_nome, escola_endereco)"
+      + "VALUES(default, ?, ?)";
+
+      pstmt = conexao.prepareStatement(sqlQuery);
+      pstmt.setString(1, this.nome);
+      pstmt.setString(2, this.endereco);
+
+      if (pstmt.executeUpdate() > 0) {
+        System.out.println("Escola cadastrada!");
+        return true;
       }
-      return "Escola não inserida.";
-    } else {
-      return "Reveja os dados e tente novamente";
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
     }
+    System.out.println("Escola não cadastrada!");
+    return false;
   }
   public boolean updateSchool() {
     PreparedStatement pstmt;
@@ -86,9 +85,8 @@ public class Escola {
   public boolean deleteSchool() {
     PreparedStatement pstmt;
     try {
-      String sqlQuery = "DELETE FROM escola"
+      String sqlQuery = "DELETE FROM escola "
       + "WHERE escola_id = ?";
-
       pstmt = conexao.prepareStatement(sqlQuery);
       pstmt.setInt(1, this.id);
 
@@ -101,6 +99,22 @@ public class Escola {
     }
     System.out.println("Não foi possível deletar a escola.");
     return false;
+  }
+  public static Escola readSchool(String schoolName) throws SQLException {
+    new ConexaoMysql();
+    Connection conexao = ConexaoMysql.conectar();
+    String sqlQuery = "";
+    PreparedStatement pstmt;
+    
+    sqlQuery = "SELECT escola_id, escola_nome, "
+    + "escola_endereco FROM escola WHERE escola_nome = ?";
+    pstmt = conexao.prepareStatement(sqlQuery);
+    pstmt.setString(1, schoolName);
+
+    ResultSet rs = pstmt.executeQuery();
+    rs.next();
+    Escola escola = new Escola(rs.getInt("escola_id"), rs.getString("escola_nome"), rs.getString("escola_endereco"));
+    return escola;
   }
   public static ArrayList<Escola> readSchoolsData(int idEscola) throws SQLException {
     ArrayList<Escola> dadosEscolas = new ArrayList<Escola>();
@@ -131,17 +145,5 @@ public class Escola {
       dadosEscolas.add(escola);
     }
     return dadosEscolas;
-  }
-  private boolean validateData() {
-    if (this.id != (int)this.id) {
-      return false;
-    }
-    if (this.nome.length() < 1) {
-      return false;
-    }
-    if (this.endereco.length() < 1) {
-      return false;
-    }
-    return true;
   }
 }
