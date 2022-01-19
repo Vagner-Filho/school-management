@@ -24,7 +24,7 @@ public class GestaoEscolar extends JFrame implements MouseInputListener {
   Escola escolaSelecionada = new Escola();
 
   public GestaoEscolar() throws SQLException {
-      super("Cadastro de Escola");
+      super("Gerenciamento de Escola");
       painel = getContentPane();
       painel.setLayout(new BoxLayout(painel, 1));
 
@@ -194,7 +194,7 @@ public class GestaoEscolar extends JFrame implements MouseInputListener {
 
       this.setSize(800, 350);
       this.setVisible(true);
-      this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+      this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
   }
   private void criaTabelaDados() throws SQLException {
     String[] colunasTabela = new String[] {"Id", "Nome", "Endereço"};
