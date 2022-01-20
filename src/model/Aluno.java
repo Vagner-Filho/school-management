@@ -22,6 +22,7 @@ public class Aluno {
     new ConexaoMysql();
     this.conexao = ConexaoMysql.conectar();
   }
+  public Aluno() {};
   public int getId() {
     return this.id;
   }
@@ -62,16 +63,21 @@ public class Aluno {
     PreparedStatement pstmt;
     try {
       String sqlQuery = "INSERT INTO aluno ("
-      +"aluno_id, aluno_nome, aluno_cpf, aluno_matricula, aluno_email, aluno_escola_id) "
-      + "VALUES (default, ?, ?, ?, ?, ?)";
-
+      +"aluno_id, aluno_nome, aluno_cpf, aluno_matricula, aluno_email, aluno_escola_id)"
+      + "VALUES(default, ?, ?, ?, ?, ?)";
+      System.out.println(this.id);
+      System.out.println(this.nome);
+      System.out.println(this.cpf);
+      System.out.println(this.matricula);
+      System.out.println(this.email);
+      System.out.println(this.escola_id);
       pstmt = conexao.prepareStatement(sqlQuery);
-      pstmt.setInt(1, this.id);
-      pstmt.setString(2, this.nome);
-      pstmt.setString(3, this.cpf);
-      pstmt.setString(4, this.matricula);
-      pstmt.setString(5, this.email);
-      pstmt.setInt(6, this.escola_id);
+      // pstmt.setInt(1, this.id);
+      pstmt.setString(1, this.nome);
+      pstmt.setString(2, this.cpf);
+      pstmt.setString(3, this.matricula);
+      pstmt.setString(4, this.email);
+      pstmt.setInt(5, this.escola_id);
 
       if (pstmt.executeUpdate() > 0) {
         System.out.println("Aluno inserido com sucesso!");

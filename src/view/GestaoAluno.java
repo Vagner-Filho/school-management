@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.MouseInputListener;
 import javax.swing.table.DefaultTableModel;
 
@@ -20,6 +22,7 @@ public class GestaoAluno extends JFrame implements MouseInputListener {
   JButton botaoBuscar = new JButton("Buscar");
   DefaultTableModel modeloTabela = null;
   JTable tabelaDados = null;
+  Aluno aluno = new Aluno();
   int rowId;
 
   public GestaoAluno() throws SQLException {
@@ -77,35 +80,51 @@ public class GestaoAluno extends JFrame implements MouseInputListener {
           JFrame frame = new JFrame();
           frame.setTitle("Cadastro Aluno");
           frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-          frame.setSize(800, 200);
-          frame.setLayout(new BorderLayout(10, 10));       
+          frame.setSize(800, 300);
+          frame.setLayout(new FlowLayout(FlowLayout.CENTER));       
 
           JPanel alunoPainel = new JPanel();
           alunoPainel.setLayout(new GridLayout(0, 1));
-
-          JPanel conjuntoNomeAluno = new JPanel();
-          conjuntoNomeAluno.setLayout(new FlowLayout());
           
           JLabel labelAluno = new JLabel("Novo Aluno");
-          // JTextField nomeAluno = new JTextField("Nome", 20);
-          // JTextField cpfAluno = new JTextField("CPF", 11);
-          // JTextField matriculaAluno = new JTextField("Matricula", 11);
-          // JTextField emailAluno = new JTextField("Email", 11);
-          // JTextField escolaId = new JTextField("Id da Escola", 11);
-          JButton cadastraAluno = new JButton("Cadastrar");
+          JButton cadastraAluno = new JButton("Cadastrar Aluno");
+
+          cadastraAluno.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              if (aluno.getNome().length() < 2 || aluno.getCpf().length() < 11 || aluno.getEmail().length() < 5 || aluno.getMatricula().length() < 1 || aluno.getEscolaId() < 0) {
+                // TODO: Treat
+              } else {
+                aluno.setId(0);
+                if (aluno.createStudent()) {
+                  JLabel status = new JLabel("Aluno cadastrado!");
+                  status.setLayout(new FlowLayout(FlowLayout.CENTER));
+                  JFrame frame = new JFrame();
+                  frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+                  frame.setSize(300, 300);
+                  frame.setLayout(new FlowLayout(FlowLayout.CENTER));
+                  frame.add(status); 
+                  frame.setVisible(true);
+                }
+              }
+            }
+            
+          });
+
           alunoPainel.setAlignmentX(CENTER_ALIGNMENT);
           alunoPainel.add(labelAluno);
-          // alunoPainel.add(idAluno);
-          alunoPainel.add(conjuntoFormulario("Id", "", 20));
-          // alunoPainel.add(nomeAluno);
-          alunoPainel.add(conjuntoFormulario("Nome completo", "", 20));
-          alunoPainel.add(conjuntoFormulario("CPF", "", 20));
-          alunoPainel.add(conjuntoFormulario("Matricula", "", 20));
-          alunoPainel.add(conjuntoFormulario("E-mail", "", 20));
-          alunoPainel.add(conjuntoFormulario("Escola do aluno", "", 20));
+          alunoPainel.add(conjuntoFormulario("Id", "", 20, "alunoId"));
+          alunoPainel.add(conjuntoFormulario("Nome completo", "", 20, "nome"));
+          alunoPainel.add(conjuntoFormulario("CPF", "", 20, "cpf"));
+          alunoPainel.add(conjuntoFormulario("Matricula", "", 20, "matricula"));
+          alunoPainel.add(conjuntoFormulario("E-mail", "", 20, "email"));
+          alunoPainel.add(conjuntoFormulario("Escola do aluno", "", 20, "escola"));
           alunoPainel.add(cadastraAluno);
-  
-          frame.add(alunoPainel);
+
+          JScrollPane painelScroll = new JScrollPane(alunoPainel);
+          
+          frame.add(painelScroll);
           frame.setVisible(true);
         }
       });
@@ -115,55 +134,75 @@ public class GestaoAluno extends JFrame implements MouseInputListener {
     }
   }
 
-  private JPanel conjuntoFormulario(String label, String textField, int size) {
+  private JPanel conjuntoFormulario(String label, String textField, int size, String attr) {
     JPanel conjuntoForm = new JPanel();
     JTextField text = new JTextField(textField, size);
-    conjuntoForm.setLayout(new FlowLayout());
+    text.getDocument().addDocumentListener(new DocumentListener() {
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        setValue(attr);
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        setValue(attr);
+      }
+
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        setValue(attr);
+      }
+      
+      private void setValue(String attr) {
+        switch (attr) {
+          case "alunoId":
+            aluno.setId(Integer.parseInt(text.getText()));
+            break;
+          case "nome":
+            aluno.setNome(text.getText());
+            break;
+          case "cpf":
+            aluno.setCpf(text.getText());
+            break;
+          case "matricula":
+            aluno.setMatricula(text.getText());
+            break;
+          case "email":
+            aluno.setEmail(text.getText());
+            break;
+          case "escola":
+            aluno.setEscolaId(Integer.parseInt(text.getText()));
+          default:
+            break;
+        }
+      }
+    });
+    conjuntoForm.setLayout(new FlowLayout(FlowLayout.RIGHT));
     conjuntoForm.add(new JLabel(label));
     conjuntoForm.add(text);
     return conjuntoForm;
   }
   
   @Override
-  public void mouseClicked(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void mouseClicked(MouseEvent e) {}
 
   @Override
-  public void mousePressed(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void mousePressed(MouseEvent e) {}
 
   @Override
-  public void mouseReleased(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void mouseReleased(MouseEvent e) {}
 
   @Override
-  public void mouseEntered(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void mouseEntered(MouseEvent e) {}
 
   @Override
-  public void mouseExited(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void mouseExited(MouseEvent e) {}
 
   @Override
-  public void mouseDragged(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void mouseDragged(MouseEvent e) {}
 
   @Override
-  public void mouseMoved(MouseEvent e) {
-    // TODO Auto-generated method stub
-    
-  }
+  public void mouseMoved(MouseEvent e) {}
   
 }
