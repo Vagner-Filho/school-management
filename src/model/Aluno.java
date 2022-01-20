@@ -65,14 +65,9 @@ public class Aluno {
       String sqlQuery = "INSERT INTO aluno ("
       +"aluno_id, aluno_nome, aluno_cpf, aluno_matricula, aluno_email, aluno_escola_id)"
       + "VALUES(default, ?, ?, ?, ?, ?)";
-      System.out.println(this.id);
-      System.out.println(this.nome);
-      System.out.println(this.cpf);
-      System.out.println(this.matricula);
-      System.out.println(this.email);
-      System.out.println(this.escola_id);
+
       pstmt = conexao.prepareStatement(sqlQuery);
-      // pstmt.setInt(1, this.id);
+
       pstmt.setString(1, this.nome);
       pstmt.setString(2, this.cpf);
       pstmt.setString(3, this.matricula);
@@ -92,7 +87,7 @@ public class Aluno {
   public boolean updateStudent() {
     PreparedStatement pstmt;
     try {
-      String sqlQuery = "UPDATE aluno SET aluno_nome = ?, aluno_cpf = ?, aluno_matricula = ?, aluno_email = ?, aluno_escola_id = ?";
+      String sqlQuery = "UPDATE aluno SET aluno_nome = ?, aluno_cpf = ?, aluno_matricula = ?, aluno_email = ?, aluno_escola_id = ? WHERE aluno_id = ?";
 
       pstmt = conexao.prepareStatement(sqlQuery);
       pstmt.setString(1, this.nome);
@@ -100,6 +95,7 @@ public class Aluno {
       pstmt.setString(3, this.matricula);
       pstmt.setString(4, this.email);
       pstmt.setInt(5, this.escola_id);
+      pstmt.setInt(6, this.id);
 
       if (pstmt.executeUpdate() > 0) {
         System.out.println("Aluno atualizado com sucesso!");
@@ -131,6 +127,22 @@ public class Aluno {
     System.out.println("Não foi possível deletar o aluno.");
     return false;
   }
+  public static Aluno readStudent(String nomeAluno) throws SQLException {
+    new ConexaoMysql();
+    Connection conexao = ConexaoMysql.conectar();
+    String sqlQuery = "";
+    PreparedStatement pstmt;
+
+    sqlQuery = "SELECT * FROM aluno WHERE aluno_nome = ?";
+
+    pstmt = conexao.prepareStatement(sqlQuery);
+    pstmt.setString(1, nomeAluno);
+
+    ResultSet rs = pstmt.executeQuery();
+    rs.next();
+    Aluno aluno = new Aluno(rs.getInt("aluno_id"), rs.getString("aluno_nome"), rs.getString("aluno_cpf"), rs.getString("aluno_matricula"), rs.getString("aluno_email"), rs.getInt("aluno_escola_id"));
+    return aluno;
+  }
   public static ArrayList<Aluno> readStudentsData(int idAluno) throws SQLException {
     ArrayList<Aluno> dadosAlunos = new ArrayList<Aluno>();
     new ConexaoMysql();
@@ -148,6 +160,32 @@ public class Aluno {
       pstmt = conexao.prepareStatement(sqlQuery);
     }
 
+    ResultSet rs = pstmt.executeQuery();
+
+    while(rs.next()) {
+      int id = rs.getInt("aluno_id");
+      String nome = rs.getString("aluno_nome");
+      String cpf = rs.getString("aluno_cpf");
+      String matricula = rs.getString("aluno_matricula");
+      String email = rs.getString("aluno_email");
+      int escola = rs.getInt("aluno_escola_id");
+
+      Aluno aluno = new Aluno (id, nome, cpf, matricula, email, escola);
+      dadosAlunos.add(aluno);
+    }
+    return dadosAlunos;
+  }
+  public static ArrayList<Aluno> readStudentsData(String nomeAluno) throws SQLException {
+    ArrayList<Aluno> dadosAlunos = new ArrayList<Aluno>();
+    new ConexaoMysql();
+    Connection conexao = ConexaoMysql.conectar();
+    String sqlQuery = "";
+    PreparedStatement pstmt;
+
+    sqlQuery = "SELECT * FROM aluno WHERE aluno_nome LIKE ?";
+
+    pstmt = conexao.prepareStatement(sqlQuery);
+    pstmt.setString(1, nomeAluno);
     ResultSet rs = pstmt.executeQuery();
 
     while(rs.next()) {
