@@ -15,6 +15,7 @@ import model.Escola;
 
 
 public class GestaoEscolar extends JFrame implements MouseInputListener {
+  // GestaoEscolar implementa MouseInputListener para selecionar os itens das tabelas
   Container painel = null;
   JButton botaoIncluir = new JButton("Incluir");
   JButton botaoAlterar = new JButton("Alterar");
@@ -280,10 +281,6 @@ public class GestaoEscolar extends JFrame implements MouseInputListener {
     JScrollPane painelScroll = new JScrollPane(tabelaDados);
     painel.add(painelScroll, BorderLayout.CENTER);
   }
-  // public static void main(String[] args) throws SQLException {
-  //   new GestaoEscolar();
-  //   // new GestaoAluno();
-  // }
   @Override
   public void mouseClicked(MouseEvent e) {}
   @Override

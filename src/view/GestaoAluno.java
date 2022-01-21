@@ -23,7 +23,9 @@ public class GestaoAluno extends JFrame implements MouseInputListener {
   JButton botaoBuscar = new JButton("Buscar");
   DefaultTableModel modeloTabela = null;
   JTable tabelaDados = null;
+  // Esta instância de aluno é utilizada para atribuir o valor dos items da tabela assim que o usuário clicar sobre elas
   Aluno aluno = new Aluno();
+  // rowId é utilizado para atualizar a interface gráfica da tabela quando houver exclusão e atualização
   int rowId;
 
   public GestaoAluno() throws SQLException {
@@ -75,6 +77,7 @@ public class GestaoAluno extends JFrame implements MouseInputListener {
     JScrollPane painelScroll = new JScrollPane(tabelaDados);
     painel.add(painelScroll, BorderLayout.CENTER);
   }
+  // setAction() implementa as ações dos botões
   private void setAction(JButton btn, String action) {
     switch (action) {
       case "cadastrar":
@@ -319,7 +322,7 @@ public class GestaoAluno extends JFrame implements MouseInputListener {
         break;
     }
   }
-
+  // conjuntoFormulario() retorna um painel horizontal composto por label e textfield
   private JPanel conjuntoFormulario(String label, String textField, int size, String attr) {
     JPanel conjuntoForm = new JPanel();
     JTextField text = new JTextField(textField, size);
