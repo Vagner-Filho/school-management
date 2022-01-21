@@ -22,6 +22,8 @@ CREATE TABLE aluno (
 INSERT INTO escola (escola_id, escola_nome, escola_endereco)
 VALUES (1, 'Escola do Java', 'Rua da Programação, nº 2017');
 
+INSERT INTO escola VALUES (2, 'Plataforma Discent', 'Avenida Java, nº 256');
+
 INSERT INTO aluno (aluno_id, aluno_nome, aluno_cpf, aluno_matricula,
 aluno_email, aluno_escola_id)
 VALUES (1, 'João Fulano', '99999999999', '999999', 'joao@email.com', 1);
@@ -31,3 +33,6 @@ VALUES (2, 'Carlos Ciclano', '11111111111', '123456', 'carlos@email.com', 1);
 
 INSERT INTO aluno
 VALUES (3, 'Maria de Tal', '98765432199', '654321', 'maria@email.com', 1);
+
+INSERT INTO aluno
+VALUES (4, 'Vagner Filho', '78945635781', '4457', 'filho@gmail.com', 2);
