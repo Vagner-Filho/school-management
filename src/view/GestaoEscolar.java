@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import javax.swing.table.DefaultTableModel;
 import listeners.*;
+import model.Aluno;
 import model.Escola;
 
 
@@ -18,6 +19,7 @@ public class GestaoEscolar extends JFrame implements MouseInputListener {
   JButton botaoIncluir = new JButton("Incluir");
   JButton botaoAlterar = new JButton("Alterar");
   JButton botaoExcluir = new JButton("Excluir");
+  JButton botaoBuscar = new JButton("Buscar alunos da escola");
   DefaultTableModel modeloTabela = null;
   JTable tabelaDados = null;
   int rowId;
@@ -185,10 +187,72 @@ public class GestaoEscolar extends JFrame implements MouseInputListener {
           frame.setVisible(true);
         }
       });
-      
+      // Comportamento do botão para buscar alunos matriculados em uma escola
+      botaoBuscar.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          if (escolaSelecionada.getId() < 1) {
+            JLabel lbl = new JLabel("Selecione uma escola");
+            lbl.setLayout(new FlowLayout(FlowLayout.CENTER));
+            JFrame f = new JFrame();
+            f.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            f.setSize(300, 200);
+            f.setLayout(new FlowLayout(FlowLayout.CENTER));
+            f.add(lbl);
+            f.setVisible(true);
+          } else {
+            try {
+              ArrayList<Aluno> dadosAlunos = Escola.readStudentsFromSchool(escolaSelecionada.getId());
+              JFrame frame = new JFrame();
+              frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+              frame.setLayout(new FlowLayout(FlowLayout.CENTER));
+  
+              if (dadosAlunos.size() > 0) {
+                String[] tableColumns = new String[] {"Id", "Nome", "CPF", "Matricula", "Email", "Escola Id"};
+  
+                Container panel = null;
+                panel = getContentPane();
+                panel.setLayout(new BoxLayout(panel, 1));
+                DefaultTableModel tableModel = null;
+  
+                tableModel = new DefaultTableModel(null, tableColumns);
+                frame.setTitle("Alunos matriculados na escola: " + escolaSelecionada.getNome());
+  
+                for (Aluno aluno: dadosAlunos) {
+                  tableModel.addRow(new String[] {
+                    Integer.toString(aluno.getId()),
+                    aluno.getNome(),
+                    aluno.getCpf(),
+                    aluno.getMatricula(),
+                    aluno.getEmail(),
+                    Integer.toString(aluno.getEscolaId())
+                  });
+                }
+                JTable dataTable = new JTable();
+                tabelaDados.setModel(tableModel);
+  
+                JScrollPane pScroll = new JScrollPane(dataTable);
+                panel.add(pScroll, BorderLayout.CENTER);
+                frame.setSize(800, 300);
+                frame.add(panel);
+              } else {
+                frame.setSize(500, 300);
+                JLabel lbl = new JLabel("Nenhum aluno matriculado nesta escola");
+                lbl.setLayout(new FlowLayout(FlowLayout.CENTER));
+                frame.add(lbl);
+              }
+              frame.setVisible(true); 
+            } catch (SQLException e1) {
+              e1.printStackTrace();
+            }
+          }
+        }
+        
+      });
       painelBotoesTabela.add(botaoIncluir);
       painelBotoesTabela.add(botaoAlterar);
       painelBotoesTabela.add(botaoExcluir);
+      painelBotoesTabela.add(botaoBuscar);
       painel.add(new JLabel("Para alterar ou excluir, clique em uma escola na lista e em seguida no botão desejado"));
       painel.add(painelBotoesTabela);
 

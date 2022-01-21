@@ -99,6 +99,39 @@ public class Escola {
     System.out.println("Não foi possível deletar a escola.");
     return false;
   }
+  public static ArrayList<Aluno> readStudentsFromSchool(int idEscola) throws SQLException {
+    
+    ArrayList<Aluno> dadosAlunos = new ArrayList<Aluno>();
+    new ConexaoMysql();
+    Connection conexao = ConexaoMysql.conectar();
+    String sqlQuery = "";
+    PreparedStatement pstmt;
+
+    if (idEscola > 0) {
+      sqlQuery = "SELECT * FROM aluno WHERE aluno_escola_id = ?";
+      pstmt = conexao.prepareStatement(sqlQuery);
+      pstmt.setInt(1, idEscola);
+    } else {
+      sqlQuery = "SELECT * FROM aluno GROUP BY aluno_escola_id";
+      pstmt = conexao.prepareStatement(sqlQuery);
+    }
+
+    ResultSet rs = pstmt.executeQuery();
+
+    while(rs.next()) {
+      int id = rs.getInt("aluno_id");
+      String nome = rs.getString("aluno_nome");
+      String cpf = rs.getString("aluno_cpf");
+      String matricula = rs.getString("aluno_matricula");
+      String email = rs.getString("aluno_email");
+      int escola = rs.getInt("aluno_escola_id");
+
+      Aluno aluno = new Aluno (id, nome, cpf, matricula, email, escola);
+      dadosAlunos.add(aluno);
+    }
+
+    return dadosAlunos;
+  }
   public static Escola readSchool(String schoolName) throws SQLException {
     new ConexaoMysql();
     Connection conexao = ConexaoMysql.conectar();

@@ -17,7 +17,7 @@ import model.Aluno;
 
 public class GestaoAluno extends JFrame implements MouseInputListener {
   Container painel = null;
-  JButton botaoIncluir = new JButton("Incluir");
+  JButton botaoIncluir = new JButton("Matricular Aluno");
   JButton botaoAlterar = new JButton("Alterar");
   JButton botaoExcluir = new JButton("Excluir");
   JButton botaoBuscar = new JButton("Buscar");
@@ -259,32 +259,38 @@ public class GestaoAluno extends JFrame implements MouseInputListener {
               public void actionPerformed(ActionEvent e) {
                 try {
                   ArrayList<Aluno> dadosAlunos = Aluno.readStudentsData(input.getText());
-                  String[] colunasTabela = new String[] {"Id", "Nome", "CPF", "Matricula", "Email", "Escola Id"};
+                  String[] tableColumns = new String[] {"Id", "Nome", "CPF", "Matricula", "Email", "Escola Id"};
 
+                  Container panel = null;
+                  panel = getContentPane();
+                  panel.setLayout(new BoxLayout(panel, 1));
                   DefaultTableModel tableModel = null;
-                  tableModel = new DefaultTableModel(null, colunasTabela);
 
-                  for (Aluno aluno: dadosAlunos) {
-                    tableModel.addRow(new String[] {
-                      Integer.toString(aluno.getId()),
-                      aluno.getNome(),
-                      aluno.getCpf(),
-                      aluno.getMatricula(),
-                      aluno.getEmail(),
-                      Integer.toString(aluno.getEscolaId())
-                    });
-                  }
+                  tableModel = new DefaultTableModel(null, tableColumns);
                   JFrame frame = new JFrame();
                   frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
                   frame.setTitle("Consulta Aluno");
                   frame.setLayout(new FlowLayout(FlowLayout.CENTER));
 
                   if (dadosAlunos.size() > 0) {
-                    tabelaDados = new JTable();
+                    for (Aluno aluno: dadosAlunos) {
+                      tableModel.addRow(new String[] {
+                        Integer.toString(aluno.getId()),
+                        aluno.getNome(),
+                        aluno.getCpf(),
+                        aluno.getMatricula(),
+                        aluno.getEmail(),
+                        Integer.toString(aluno.getEscolaId())
+                      });
+                    }
+                    JTable dataTable = new JTable();
                     tabelaDados.setModel(tableModel);
-  
+
+                    JScrollPane pScroll = new JScrollPane(dataTable);
+                    panel.add(pScroll, BorderLayout.CENTER);
+
                     frame.setSize(800, 300);
-                    frame.add(tabelaDados);
+                    frame.add(panel);
                   } else {
                     frame.setSize(500, 300);
                     JLabel lbl = new JLabel("Nenhum aluno encontrado");

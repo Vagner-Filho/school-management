@@ -185,7 +185,7 @@ public class Aluno {
     sqlQuery = "SELECT * FROM aluno WHERE aluno_nome LIKE ?";
 
     pstmt = conexao.prepareStatement(sqlQuery);
-    pstmt.setString(1, nomeAluno);
+    pstmt.setString(1, "%" + nomeAluno + "%");
     ResultSet rs = pstmt.executeQuery();
 
     while(rs.next()) {
@@ -201,37 +201,37 @@ public class Aluno {
     }
     return dadosAlunos;
   }
-  public static ArrayList<Aluno> readStudentsPerSchool(int idEscola) throws SQLException {
-    ArrayList<Aluno> dadosAlunos = new ArrayList<Aluno>();
-    new ConexaoMysql();
-    Connection conexao = ConexaoMysql.conectar();
-    String sqlQuery = "";
-    PreparedStatement pstmt;
+  // public static ArrayList<Aluno> readStudentsPerSchool(int idEscola) throws SQLException {
+  //   ArrayList<Aluno> dadosAlunos = new ArrayList<Aluno>();
+  //   new ConexaoMysql();
+  //   Connection conexao = ConexaoMysql.conectar();
+  //   String sqlQuery = "";
+  //   PreparedStatement pstmt;
 
-    if (idEscola > 0) {
-      sqlQuery = "SELECT aluno_id, aluno_nome, "
-      + "aluno_cpf, aluno_matricula, aluno_email, aluno_escola_id FROM aluno WHERE aluno_escola_id = ?";
-      pstmt = conexao.prepareStatement(sqlQuery);
-      pstmt.setInt(1, idEscola);
-    } else {
-      sqlQuery = "SELECT aluno_id, aluno_nome, aluno_cpf, aluno_matricula, aluno_email, aluno_escola_id FROM aluno GROUP BY aluno_escola_id";
-      pstmt = conexao.prepareStatement(sqlQuery);
-    }
+  //   if (idEscola > 0) {
+  //     sqlQuery = "SELECT aluno_id, aluno_nome, "
+  //     + "aluno_cpf, aluno_matricula, aluno_email, aluno_escola_id FROM aluno WHERE aluno_escola_id = ?";
+  //     pstmt = conexao.prepareStatement(sqlQuery);
+  //     pstmt.setInt(1, idEscola);
+  //   } else {
+  //     sqlQuery = "SELECT aluno_id, aluno_nome, aluno_cpf, aluno_matricula, aluno_email, aluno_escola_id FROM aluno GROUP BY aluno_escola_id";
+  //     pstmt = conexao.prepareStatement(sqlQuery);
+  //   }
 
-    ResultSet rs = pstmt.executeQuery();
+  //   ResultSet rs = pstmt.executeQuery();
 
-    while(rs.next()) {
-      int id = rs.getInt("aluno_id");
-      String nome = rs.getString("aluno_nome");
-      String cpf = rs.getString("aluno_cpf");
-      String matricula = rs.getString("aluno_matricula");
-      String email = rs.getString("aluno_email");
-      int escola = rs.getInt("aluno_escola_id");
+  //   while(rs.next()) {
+  //     int id = rs.getInt("aluno_id");
+  //     String nome = rs.getString("aluno_nome");
+  //     String cpf = rs.getString("aluno_cpf");
+  //     String matricula = rs.getString("aluno_matricula");
+  //     String email = rs.getString("aluno_email");
+  //     int escola = rs.getInt("aluno_escola_id");
 
-      Aluno aluno = new Aluno (id, nome, cpf, matricula, email, escola);
-      dadosAlunos.add(aluno);
-    }
+  //     Aluno aluno = new Aluno (id, nome, cpf, matricula, email, escola);
+  //     dadosAlunos.add(aluno);
+  //   }
 
-    return dadosAlunos;
-  }
+  //   return dadosAlunos;
+  // }
 }
